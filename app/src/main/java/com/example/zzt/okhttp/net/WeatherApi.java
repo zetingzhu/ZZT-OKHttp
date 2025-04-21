@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData;
 import com.example.zzt.okhttp.entity.MyWeather;
 import com.example.zzt.okhttp.net.factoryv2.BaseResponseV2;
 
+import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
@@ -26,7 +27,11 @@ public interface WeatherApi {
     LiveData<BaseResponseV2<MyWeather>> getWeatherBeijin(@Query("location") String location);
 
     @GET("find?key=4b61a68895b149f1a5ea53fe43782e17")
-    LiveData< MyWeather>  getWeatherShangHai(@Query("location") String location);
+    LiveData<MyWeather> getWeatherShangHai(@Query("location") String location);
+
+    @GET("find?key=4b61a68895b149f1a5ea53fe43782e17")
+    Call<MyWeather> getWeather(@Query("location") String location);
+
 
     /**
      * 天气预报

@@ -2,13 +2,11 @@ package com.example.zzt.okhttp.net;
 
 import android.util.Log;
 
-import com.example.zzt.okhttp.net.factoryv1.LiveDataCallAdapterFactoryV1;
-import com.example.zzt.okhttp.net.factoryv1.WanResponse;
+import com.example.zzt.okhttp.BuildConfig;
 import com.example.zzt.okhttp.net.factoryv2.LiveDataCallAdapterFactoryV2;
 
 import java.util.concurrent.TimeUnit;
 
-import kotlin.jvm.functions.Function3;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -20,6 +18,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class RetrofitUtils {
     private static final String TAG = RetrofitUtils.class.getSimpleName();
+    private static final int DEFAULT_TIMEOUT = 20; // 20  SECONDS
+    private static final int DEFAULT_READ_TIMEOUT = 30; // 20  SECONDS
 
     private static class InnerClass {
         private static final RetrofitUtils INSTANCE = new RetrofitUtils();
@@ -33,25 +33,34 @@ public class RetrofitUtils {
     }
 
 
-    private synchronized OkHttpClient getOkHttpClient() {
-        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(message -> {
-            Log.e(TAG, message);
-        });
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        return new OkHttpClient.Builder()
-                //添加log拦截器
-                .addInterceptor(loggingInterceptor)
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(10, TimeUnit.SECONDS)
-                .build();
+    public synchronized OkHttpClient getOkHttpClient() {
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+                .readTimeout(DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS)
+                .writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+//                .cookieJar(new CustomCookieJar())
+//                .addInterceptor(new TokenInterceptor())
+//                .addInterceptor(new PublicParamInterceptor())
+        ;
+
+        if (BuildConfig.DEBUG) {
+            HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
+            httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+            builder.addInterceptor(httpLoggingInterceptor);
+        }
+
+        return builder.build();
     }
 
-    public synchronized Retrofit getRetrofit(String baseUrl) {
+    private synchronized Retrofit getRetrofit(String baseUrl) {
         return new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .client(getOkHttpClient())
                 .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(new LiveDataCallAdapterFactoryV2())
+//                .addCallAdapterFactory(RxJava3CallAdapterFactory.create()) // 失败
+                .addCallAdapterFactory(new LiveDataCallAdapterFactoryV2()) // 成功
+//                .addCallAdapterFactory(new LiveDataCallAdapterFactoryV3()) // 成功
+//                .addCallAdapterFactory(new LiveDataCallAdapterFactoryV4()) // 成功
                 .build();
     }
 

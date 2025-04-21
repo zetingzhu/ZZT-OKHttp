@@ -7,8 +7,8 @@ public class BaseResponseV2<T> implements Serializable {
     public static final String CODE_SUCCESS = "0";
     public static final String CODE_ERROR = "1";
 
-    private String errorCode ;
-    private String  errorMsg ;
+    private String errorCode;
+    private String errorMsg;
     public T data; //数据
 
     public BaseResponseV2(String errorCode, String errorMsg) {
@@ -45,4 +45,5 @@ public class BaseResponseV2<T> implements Serializable {
     public void setData(T data) {
         this.data = data;
     }
+
 }
