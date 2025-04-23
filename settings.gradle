@@ -18,3 +18,4 @@ rootProject.name = "ZZT-OKHttp"
 include ':app'
 include ':zt-interceptor'
 include ':zt_newwork_test'
+include ':zt_okhttp_websocket'
